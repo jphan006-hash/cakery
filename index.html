@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakery Stack Master</title>
+    <style>
+        body { text-align: center; font-family: 'Arial', sans-serif; background: #fce4ec; overflow: hidden; }
+        #game-area { width: 300px; height: 500px; border: 4px solid #8d6e63; margin: 20px auto; position: relative; background: white; overflow: hidden; }
+        .layer { position: absolute; height: 30px; background: #ffcc80; border-radius: 5px; box-sizing: border-box; }
+        .layer.active { border: 2px dashed #5d4037; }
+        #score { font-size: 24px; font-weight: bold; color: #ad1457; }
+        #message { font-size: 18px; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Bakery Stack Master</h1>
+    <div id="score">Score: 0</div>
+    <div id="message">Press Space or Click to Stack!</div>
+    <div id="game-area">
+        <div class="layer" style="width: 150px; bottom: 0px; left: 75px; background: #8d6e63;"></div>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentLevel = 0;
+        let layerWidth = 150;
+        let gameArea = document.getElementById('game-area');
+        let message = document.getElementById('message');
+        let speed = 2;
+        let direction = 1;
+        let activeLayer;
+
+        function createLayer() {
+            activeLayer = document.createElement('div');
+            activeLayer.className = 'layer active';
+            activeLayer.style.width = layerWidth + 'px';
+            activeLayer.style.bottom = (currentLevel * 30) + 'px';
+            activeLayer.style.left = '0px';
+            // Change color based on layer
+            activeLayer.style.backgroundColor = `hsl(${Math.random() * 360}, 60%, 80%)`;
+            gameArea.appendChild(activeLayer);
+        }
+
+        function moveLayer() {
+            let left = parseInt(activeLayer.style.left);
+            if (left + layerWidth > 300 || left < 0) {
+                direction *= -1;
+            }
+            activeLayer.style.left = (left + (speed * direction)) + 'px';
+        }
+
+        function stack() {
+            let left = parseInt(activeLayer.style.left);
+            let prevLayer = document.getElementsByClassName('layer')[currentLevel];
+            let prevLeft = parseInt(prevLayer.style.left);
+            
+            // Calculate overlap
+            let overlap = layerWidth - Math.abs(left - prevLeft);
+            
+            if (overlap <= 0) {
+                message.innerHTML = "Game Over! Final Score: " + score;
+                clearInterval(gameInterval);
+                return;
+            }
+
+            // Shrink layer based on missed area
+            activeLayer.style.width = overlap + 'px';
+            activeLayer.style.left = (left > prevLeft ? left : prevLeft) + 'px';
+            layerWidth = overlap;
+            activeLayer.className = 'layer';
+            
+            currentLevel++;
+            score++;
+            document.getElementById('score').innerHTML = "Score: " + score;
+            speed += 0.5; // Increase difficulty
+            createLayer();
+        }
+
+        window.addEventListener('mousedown', stack);
+        window.addEventListener('keydown', (e) => { if(e.
